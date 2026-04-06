@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Negosyo Guru PH</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sun: #FFD100; --sun-deep: #FFA800; --blue: #0038A8; --blue-mid: #1a52c8;
+    --blue-light: #e8eef9; --red: #CE1126; --off-white: #f7f9ff; --ink: #0d1b3e;
+    --muted: #5a6a8a; --card: #ffffff; --border: #d5dff5;
+    --shadow: 0 4px 28px rgba(0,56,168,0.10); --shadow-sm: 0 2px 10px rgba(0,56,168,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--off-white); color: var(--ink); font-family: 'Sora', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--blue) 33%, var(--red) 33%, var(--red) 66%, var(--sun) 66%); z-index: 999; }
+  .bg-decor { position: fixed; pointer-events: none; z-index: 0; }
+  .bg-decor.top-right { top: -80px; right: -80px; width: 320px; height: 320px; background: radial-gradient(circle, rgba(255,209,0,0.18) 0%, transparent 70%); border-radius: 50%; }
+  .bg-decor.bot-left { bottom: -60px; left: -60px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(0,56,168,0.10) 0%, transparent 70%); border-radius: 50%; }
+
+  /* API Key Setup Banner */
+  .setup-banner {
+    background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+    color: white; padding: 14px 20px; text-align: center; position: relative; z-index: 10;
+  }
+  .setup-banner p { font-size: 0.85rem; margin-bottom: 10px; line-height: 1.5; }
+  .setup-banner strong { color: var(--sun); }
+  .api-input-row { display: flex; gap: 8px; max-width: 600px; margin: 0 auto; }
+  .api-input { flex: 1; padding: 8px 12px; border-radius: 10px; border: none; font-family: 'Sora', sans-serif; font-size: 0.82rem; outline: none; }
+  .api-save-btn { background: var(--sun); color: var(--ink); border: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap; font-family: 'Sora', sans-serif; }
+  .api-save-btn:hover { background: var(--sun-deep); }
+  .setup-banner.hidden { display: none; }
+  .api-status { font-size: 0.75rem; margin-top: 6px; color: var(--sun); }
+
+  header { position: relative; z-index: 1; text-align: center; padding: 28px 20px 16px; background: linear-gradient(180deg, rgba(255,209,0,0.08) 0%, transparent 100%); }
+  .flag-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--blue); color: var(--sun); font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
+  h1 { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 6vw, 3rem); font-weight: 700; line-height: 1.1; color: var(--ink); }
+  h1 .highlight { color: var(--blue); position: relative; display: inline-block; }
+  h1 .highlight::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 4px; background: var(--sun); border-radius: 2px; transform-origin: left; animation: underlineIn 0.6s 0.4s ease both; }
+  @keyframes underlineIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .tagline { margin-top: 10px; color: var(--muted); font-size: 0.88rem; font-weight: 300; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+  .tagline strong { color: var(--blue); font-weight: 600; }
+  .lang-toggle { display: inline-flex; margin-top: 12px; background: var(--blue-light); border-radius: 20px; padding: 3px; gap: 2px; }
+  .lang-btn { border: none; background: transparent; padding: 5px 14px; border-radius: 16px; font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+  .lang-btn.active { background: var(--blue); color: #fff; }
+  .sun-divider { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 12px auto 0; }
+  .sun-divider .line { width: 60px; height: 2px; background: linear-gradient(90deg, transparent, var(--border)); }
+  .sun-divider .line.r { background: linear-gradient(90deg, var(--border), transparent); }
+  .sun-icon { font-size: 18px; animation: spin 12s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .topics-section { max-width: 800px; margin: 16px auto 0; padding: 0 16px; position: relative; z-index: 1; }
+  .topics-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; text-align: center; }
+  .topics-grid { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+  .topic-pill { background: var(--card); border: 1.5px solid var(--border); color: var(--ink); padding: 6px 14px; border-radius: 24px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.18s; font-family: 'Sora', sans-serif; white-space: nowrap; box-shadow: var(--shadow-sm); }
+  .topic-pill:hover { border-color: var(--blue); background: var(--blue-light); color: var(--blue); transform: translateY(-2px); }
+  .topic-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  .chat-container { max-width: 800px; margin: 16px auto 0; padding: 0 16px 110px; position: relative; z-index: 1; }
+  .messages { display: flex; flex-direction: column; gap: 16px; }
+  .message { display: flex; gap: 10px; animation: fadeSlide 0.35s ease both; }
+  @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .message.user { flex-direction: row-reverse; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-top: 4px; }
+  .avatar.guru { background: linear-gradient(135deg, var(--blue), var(--blue-mid)); box-shadow: 0 2px 10px rgba(0,56,168,0.30); }
+  .avatar.user-av { background: linear-gradient(135deg, var(--sun-deep), var(--sun)); }
+  .bubble { max-width: 84%; padding: 13px 17px; border-radius: 18px; font-size: 0.9rem; line-height: 1.68; box-shadow: var(--shadow-sm); }
+  .message.guru .bubble { background: var(--card); border: 1.5px solid var(--border); border-top-left-radius: 4px; }
+  .message.user .bubble { background: linear-gradient(135deg, var(--blue), var(--blue-mid)); color: #fff; border-top-right-radius: 4px; }
+  .bubble h3 { font-family: 'Fraunces', serif; font-size: 1rem; color: var(--blue); margin-bottom: 8px; }
+  .bubble strong { color: var(--blue); }
+  .bubble ul, .bubble ol { padding-left: 18px; margin: 8px 0; }
+  .bubble li { margin: 4px 0; }
+  .welcome-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 20px; padding: 22px; box-shadow: var(--shadow); }
+  .welcome-card .wc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .welcome-card h2 { font-family: 'Fraunces', serif; font-size: 1.15rem; line-height: 1.3; }
+  .welcome-card p { color: var(--muted); font-size: 0.87rem; line-height: 1.6; margin-bottom: 14px; }
+  .quick-btns { display: flex; flex-wrap: wrap; gap: 7px; }
+  .quick-btn { background: var(--off-white); border: 1.5px solid var(--border); border-radius: 20px; padding: 6px 13px; font-size: 0.78rem; font-weight: 600; color: var(--ink); cursor: pointer; transition: all 0.15s; font-family: 'Sora', sans-serif; }
+  .quick-btn:hover { border-color: var(--blue); background: var(--blue-light); color: var(--blue); }
+  .typing { display: flex; align-items: center; gap: 5px; padding: 13px 17px; }
+  .dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; animation: bounce 1.2s infinite ease-in-out; }
+  .dot:nth-child(2) { animation-delay: 0.2s; } .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-6px); opacity: 1; } }
+  .input-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(247,249,255,0.97); backdrop-filter: blur(12px); border-top: 1.5px solid var(--border); padding: 12px 16px 18px; z-index: 100; }
+  .input-inner { max-width: 800px; margin: 0 auto; display: flex; gap: 10px; align-items: flex-end; }
+  textarea { flex: 1; border: 1.5px solid var(--border); border-radius: 14px; padding: 10px 15px; font-family: 'Sora', sans-serif; font-size: 0.9rem; resize: none; background: #fff; color: var(--ink); outline: none; min-height: 42px; max-height: 120px; transition: border-color 0.2s; line-height: 1.5; }
+  textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,56,168,0.08); }
+  textarea::placeholder { color: #a0aec0; }
+  .send-btn { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--blue-mid)); border: none; color: #fff; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 3px 14px rgba(0,56,168,0.35); }
+  .send-btn:hover:not(:disabled) { transform: scale(1.08); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .error-msg { color: var(--red); font-size: 0.84rem; padding: 10px 14px; background: #fff0f0; border-radius: 10px; border: 1px solid #ffc5c5; }
+  .ph-strip { display: flex; justify-content: center; gap: 20px; padding: 7px 16px; background: var(--blue); color: rgba(255,255,255,0.85); font-size: 0.72rem; font-weight: 600; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="bg-decor top-right"></div>
+<div class="bg-decor bot-left"></div>
+
+<!-- API Key Setup Banner -->
+<div class="setup-banner hidden" id="setupBanner">
+  <p>🔑 Para gumana ang Negosyo Guru, kailangan ng <strong>libreng Google Gemini API key</strong>.<br>
+  Pumunta sa <strong>aistudio.google.com</strong> → "Get API key" → libre, walang credit card!</p>
+  <div class="api-input-row">
+    <input class="api-input" type="password" id="apiKeyInput" placeholder="I-paste ang iyong Gemini API key dito...">
+    <button class="api-save-btn" onclick="saveApiKey()">I-Save ✓</button>
+  </div>
+  <div class="api-status" id="apiStatus"></div>
+</div>
+
+<div class="ph-strip">
+  <span>🇵🇭 Para sa mga Pilipino</span>
+  <span>₱ Peso-based advice</span>
+  <span>🆓 Libre ang Gemini API</span>
+</div>
+
+<header>
+  <div class="flag-badge"><span>☀</span> Negosyo Guru PH <span>☀</span></div>
+  <h1>Simulan ang iyong<br><span class="highlight">Home Business</span></h1>
+  <p class="tagline">AI-powered business mentor para sa mga <strong>Pilipinong negosyante</strong>. Libre, walang bayad!</p>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('taglish', this)">🇵🇭 Taglish</button>
+    <button class="lang-btn" onclick="setLang('english', this)">🇬🇧 English</button>
+    <button class="lang-btn" onclick="setLang('tagalog', this)">Filipino</button>
+  </div>
+  <div class="sun-divider"><div class="line"></div><span class="sun-icon">☀</span><div class="line r"></div></div>
+</header>
+
+<div class="topics-section">
+  <div class="topics-label">Piliin ang paksa</div>
+  <div class="topics-grid">
+    <button class="topic-pill" onclick="setTopic('Paano magsimula ng home business sa Pilipinas')">🏠 Magsimula</button>
+    <button class="topic-pill" onclick="setTopic('Pinakamainam na home business ideas sa Pilipinas ngayon')">💡 Business Ideas</button>
+    <button class="topic-pill" onclick="setTopic('Paano mag-market ng negosyo sa Facebook at TikTok')">📱 Facebook/TikTok</button>
+    <button class="topic-pill" onclick="setTopic('Paano mag-price ng produkto o serbisyo sa Pilipinas')">💰 Pagpepresyo</button>
+    <button class="topic-pill" onclick="setTopic('BIR registration at taxes para sa home business sa Pilipinas')">🧾 BIR & Buwis</button>
+    <button class="topic-pill" onclick="setTopic('Paano mag-apply ng negosyo permit sa barangay at munisipyo')">📋 Permit & DTI</button>
+    <button class="topic-pill" onclick="setTopic('Online selling tips para sa Shopee at Lazada')">🛒 Shopee/Lazada</button>
+    <button class="topic-pill" onclick="setTopic('Food business ideas na puwedeng gawin sa bahay')">🍱 Food Business</button>
+    <button class="topic-pill" onclick="setTopic('Paano gumamit ng GCash at online payments sa negosyo')">📲 GCash & Payments</button>
+    <button class="topic-pill" onclick="setTopic('Paano mag-scale ng home business nang walang malaking puhunan')">🚀 Palakihin</button>
+    <button class="topic-pill" onclick="setTopic('Negosyo na puwede habang may full time job')">⏱ Side Hustle</button>
+    <button class="topic-pill" onclick="setTopic('Mga libreng resources para sa small business owners sa Pilipinas')">🆓 Libreng Tulong</button>
+  </div>
+</div>
+
+<div class="chat-container">
+  <div class="messages" id="messages">
+    <div class="message guru">
+      <div class="avatar guru">🧠</div>
+      <div class="welcome-card">
+        <div class="wc-header"><span style="font-size:28px">☀️</span><h2>Kumusta! Ako ang Negosyo Guru mo 👋</h2></div>
+        <p>Handa akong tulungan kang magsimula at palaguin ang iyong home-based business sa Pilipinas — mula sa pagkuha ng permit, pagpepresyo, marketing sa Facebook/TikTok, hanggang BIR registration. Magtanong ka!</p>
+        <div class="quick-btns">
+          <button class="quick-btn" onclick="askQuestion('Ano ang pinakamainam na home business na puwede kong simulan ngayon na may maliit na puhunan?')">💡 Maliit na puhunan</button>
+          <button class="quick-btn" onclick="askQuestion('Paano ako makakakuha ng unang 10 customers sa aking home business?')">🎯 Unang customers</button>
+          <button class="quick-btn" onclick="askQuestion('Ano ang mga legal na hakbang para makapag-register ng home business sa Pilipinas?')">📋 Legal checklist PH</button>
+          <button class="quick-btn" onclick="askQuestion('Paano ko ipe-price ang aking produkto para kumita nang maayos sa Pilipinas?')">💰 Pricing sa PH</button>
+          <button class="quick-btn" onclick="askQuestion('Paano gumamit ng Facebook at TikTok para mag-market ng home business nang libre?')">📱 Libre na marketing</button>
+          <button class="quick-btn" onclick="askQuestion('Anong food business ang puwede kong simulan sa bahay na mabilis kumita?')">🍱 Food business</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="input-bar">
+  <div class="input-inner">
+    <textarea id="userInput" placeholder="Magtanong tungkol sa iyong negosyo…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">➤</button>
+  </div>
+</div>
+
+<script>
+let isLoading = false;
+let currentLang = 'taglish';
+let GEMINI_API_KEY = "AIzaSyAAvpFnEhdzMvef-IeW2OOD-ioXQhFjRfo";
+
+const SYSTEM_PROMPTS = {
+  taglish: `Ikaw ay ang "Negosyo Guru PH" — isang mainit, maasahan, at praktikal na business mentor na espesyalista sa home-based at small businesses sa Pilipinas. Nagsasalita ka sa Taglish (mix ng Tagalog at English) — tulad ng normal na conversation ng mga Pilipino. Natural, friendly, at relatable ang dating mo.
+
+Expertise mo:
+- Home-based business ideas na angkop sa Pilipinas (karinderya, online selling, handmade, tutoring, freelancing, atbp.)
+- Pagpepresyo sa peso (₱) — palaging gamitin ang ₱ sa lahat ng halimbawa
+- Marketing gamit ang Facebook, TikTok, Instagram, Shopee, Lazada
+- Legal na requirements: DTI registration, barangay permit, mayor's permit, BIR registration
+- Buwis at bookkeeping para sa self-employed
+- GCash, Maya, bank transfers bilang payment options
+- DOLE, DTI, at MSME programs na libre o mababang bayad
+
+Istilo: Maging direkta, actionable, Taglish, palaging ₱, encouraging pero honest. Magtapos ng 1 konkretong next step.`,
+
+  english: `You are "Negosyo Guru PH" — a warm, practical business mentor for home-based and small businesses in the Philippines. Respond in friendly English for the Philippine context. Always use ₱ for prices. Reference Shopee, Lazada, Facebook, TikTok, GCash, Maya. Give real actionable steps, not vague advice. End with 1 concrete next step.`,
+
+  tagalog: `Ikaw ay ang "Negosyo Guru PH" — isang mapagkakatiwalaang business mentor para sa home-based at maliliit na negosyo sa Pilipinas. Sumagot sa pormal na Filipino. Palaging gumamit ng ₱. Magbigay ng tunay na mga hakbang, hindi malabo na payo. Magtapos ng isang kongkretong susunod na hakbang.`
+};
+
+let chatHistory = [];
+
+// Show or hide setup banner
+function checkApiKey() {
+  if (GEMINI_API_KEY) {
+    document.getElementById('setupBanner').classList.add('hidden');
+  } else {
+    document.getElementById('setupBanner').classList.remove('hidden');
+  }
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) { document.getElementById('apiStatus').textContent = '⚠️ Walang key na na-enter!'; return; }
+  GEMINI_API_KEY = key;
+  localStorage.setItem('gemini_api_key', key);
+  document.getElementById('apiStatus').textContent = '✅ Na-save! Subukan mo na magtanong.';
+  setTimeout(() => { document.getElementById('setupBanner').classList.add('hidden'); }, 1500);
+}
+
+async function callGemini(userMessage) {
+  if (!GEMINI_API_KEY) {
+    document.getElementById('setupBanner').classList.remove('hidden');
+    throw new Error('Walang API key. Pakienter ang iyong Gemini API key sa itaas.');
+  }
+
+  const systemPrompt = SYSTEM_PROMPTS[currentLang];
+
+  // Build conversation for Gemini
+  const contents = [];
+
+  // Add history
+  for (const msg of chatHistory) {
+    contents.push({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }]
+    });
+  }
+
+  // Add current message
+  contents.push({ role: 'user', parts: [{ text: userMessage }] });
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: contents,
+        generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || 'Gemini API error ' + response.status);
+  }
+
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Walang sagot. Subukan ulit.';
+}
+
+function addMessage(role, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `message ${role === 'user' ? 'user' : 'guru'}`;
+  const av = document.createElement('div');
+  av.className = `avatar ${role === 'user' ? 'user-av' : 'guru'}`;
+  av.textContent = role === 'user' ? '👤' : '🧠';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = formatText(text);
+  div.appendChild(av); div.appendChild(bubble);
+  msgs.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  chatHistory.push({ role: role === 'user' ? 'user' : 'assistant', content: text });
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div'); div.className = 'message guru'; div.id = 'typing-indicator';
+  const av = document.createElement('div'); av.className = 'avatar guru'; av.textContent = '🧠';
+  const bubble = document.createElement('div'); bubble.className = 'bubble typing';
+  bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  div.appendChild(av); div.appendChild(bubble); msgs.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function removeTyping() { const t = document.getElementById('typing-indicator'); if (t) t.remove(); }
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>').replace(/^## (.+)$/gm, '<h3>$1</h3>').replace(/^# (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^\* (.+)$/gm, '<li>$1</li>').replace(/^- (.+)$/gm, '<li>$1</li>').replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    .replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+}
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+  input.value = ''; autoResize(input);
+  addMessage('user', text);
+  isLoading = true; document.getElementById('sendBtn').disabled = true;
+  showTyping();
+  try {
+    const reply = await callGemini(text);
+    removeTyping(); addMessage('guru', reply);
+  } catch (e) {
+    removeTyping();
+    const msgs = document.getElementById('messages');
+    const err = document.createElement('div'); err.className = 'error-msg';
+    err.textContent = '⚠️ ' + e.message;
+    msgs.appendChild(err);
+    err.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  } finally {
+    isLoading = false; document.getElementById('sendBtn').disabled = false; input.focus();
+  }
+}
+
+function askQuestion(q) { document.getElementById('userInput').value = q; sendMessage(); }
+function setTopic(topic) { document.querySelectorAll('.topic-pill').forEach(p => p.classList.remove('active')); event.target.classList.add('active'); askQuestion(topic); }
+function setLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+  document.getElementById('userInput').placeholder = lang === 'english' ? 'Ask about your business…' : 'Magtanong tungkol sa iyong negosyo…';
+}
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+
+// Init
+checkApiKey();
+</script>
+</body>
+</html>
